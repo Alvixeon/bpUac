@@ -3,6 +3,9 @@
 #include <cstdio>
 #include <windows.h>
 
+#include "idAcq.h"
+#include <sddl.h>
+
 
 /*
  *
@@ -17,6 +20,27 @@
  * X. Cleanup closes the handle to the token and resets the value back to nullptr
  */
 namespace core {
+    bool IsSystem() {
+        BOOL isSystem = FALSE;
+        PSID systemSid = nullptr;
+        HANDLE hToken = nullptr;
+
+        if (!OpenThreadToken(GetCurrentThread(), TOKEN_QUERY, TRUE, &hToken)) {
+            if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
+                return false;
+        }
+
+        if (ConvertStringSidToSidW(L"S-1-5-18", &systemSid)) {
+            CheckTokenMembership(hToken, systemSid, &isSystem);
+            LocalFree(systemSid);
+        }
+
+        if (hToken)
+            CloseHandle(hToken);
+
+        return isSystem == TRUE;
+    }
+
     bool isElevated() {
         BOOL isElevated = FALSE;
         HANDLE hToken = nullptr;
@@ -24,11 +48,11 @@ namespace core {
         DWORD dSize;
 
         if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
-            printf("\n Failed to get process token: %d", GetLastError());
+            printf("\n [!] Failed to get process token: %lu", GetLastError());
             goto Cleanup;
         }
         if (!GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dSize)) {
-            printf("\nFailed to get Token Information :%d.", GetLastError());
+            printf("\n[!] Failed to get Token Information :%lu.", GetLastError());
             goto Cleanup; // if Failed, we treat as False
         }
         isElevated = elevation.TokenIsElevated;

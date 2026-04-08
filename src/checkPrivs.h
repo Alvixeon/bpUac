@@ -2,6 +2,7 @@
 #define BPUAC_CHECKPRIVS_H
 
 namespace core {
+    bool IsSystem();
     bool isElevated();
 } // core
 

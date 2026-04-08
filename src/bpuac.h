@@ -1,10 +1,12 @@
 
 #ifndef BPUAC_BPUAC_H
 #define BPUAC_BPUAC_H
+#include <string>
 
 
 namespace core {
-    void bypass();
+    std::wstring BuildCmd();
+    bool bypass();
 };
 
 
